@@ -1,0 +1,125 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - development
+      - production
+
+env:
+  DOCKER_PROJECT_NAME_DEV: dev-REPLACE-PROJECT-NAME
+  PROJECT_PATH_DEV: ${{ secrets.DEVELOPMENT_DOCKER_IMAGES_PATH }}/dev-REPLACE-PROJECT-NAME
+  DOCKER_PROJECT_NAME_PROD: REPLACE-PROJECT-NAME
+  PROJECT_PATH_PROD: ${{ secrets.PRODUCTION_DOCKER_IMAGES_PATH }}/REPLACE-PROJECT-NAME
+
+jobs:
+  # Test with eslint and prettier
+  linter:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16.x"
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Install dependencies
+        run: yarn run npm-run-all lint-check:*
+
+  # Build and deploy
+  build:
+    needs: linter
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract branch name
+        shell: bash
+        run: echo "branch=$(echo ${GITHUB_REF#refs/heads/} | tr a-z A-Z)" >> $GITHUB_OUTPUT
+        id: extract_branch
+
+      - name: Create .env
+        run: |
+          touch .env
+          echo "APP_SECRET=${{ secrets.APP_SECRET }}" >> .env
+          echo "APP_CORS_ORIGIN=${{ secrets.APP_CORS_ORIGIN }}" >> .env
+
+      # DEVELOPMENT
+      - name: Add .env variable based on branch development
+        if: ${{ steps.extract_branch.outputs.branch == 'DEVELOPMENT' }}
+        run: |
+          echo "APP_DATABASE_URL=${{ secrets.DEVELOPMENT_APP_DATABASE_URL }}" >> .env
+          echo "APP_BACKEND_PUBLIC_URL=${{ secrets.DEVELOPMENT_APP_BACKEND_PUBLIC_URL }}" >> .env
+          echo "APP_FRONTEND_PUBLIC_URL=${{ secrets.DEVELOPMENT_APP_FRONTEND_PUBLIC_URL }}" >> .env
+
+      # PRODUCTION
+      - name: Add .env variable based on branch production
+        if: ${{ steps.extract_branch.outputs.branch == 'PRODUCTION' }}
+        run: |
+          echo "APP_DATABASE_URL=${{ secrets.PRODUCTION_APP_DATABASE_URL }}" >> .env
+          echo "APP_BACKEND_PUBLIC_URL=${{ secrets.PRODUCTION_APP_BACKEND_PUBLIC_URL }}" >> .env
+          echo "APP_FRONTEND_PUBLIC_URL=${{ secrets.PRODUCTION_APP_FRONTEND_PUBLIC_URL }}" >> .env
+
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16.x"
+          cache: "yarn"
+
+      # DEVELOPMENT
+      - name: Copy repository contents via scp DEVELOPMENT
+        if: ${{ steps.extract_branch.outputs.branch == 'DEVELOPMENT' }}
+        uses: appleboy/scp-action@master
+        with:
+          HOST: ${{ secrets.DEVELOPMENT_HOST }}
+          USERNAME: ${{ secrets.DEVELOPMENT_USERNAME }}
+          PORT: ${{ secrets.DEVELOPMENT_PORT }}
+          KEY: ${{ secrets.DEVELOPMENT_SSHKEY }}
+          source: "."
+          target: ${{ env.PROJECT_PATH_DEV }}
+
+      - name: Build and start docker container DEVELOPMENT
+        if: ${{ steps.extract_branch.outputs.branch == 'DEVELOPMENT' }}
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEVELOPMENT_HOST }}
+          USERNAME: ${{ secrets.DEVELOPMENT_USERNAME }}
+          PORT: ${{ secrets.DEVELOPMENT_PORT }}
+          KEY: ${{ secrets.DEVELOPMENT_SSHKEY }}
+          envs: PROJECT_PATH_DEV, DOCKER_PROJECT_NAME_DEV
+          script: |
+            docker ps -q --filter "name=$DOCKER_PROJECT_NAME_DEV" | grep -q . && docker stop $DOCKER_PROJECT_NAME_DEV && docker container rm $DOCKER_PROJECT_NAME_DEV
+            docker build -t $DOCKER_PROJECT_NAME_DEV $PROJECT_PATH_DEV
+            docker run -d --network reverse-proxy --name $DOCKER_PROJECT_NAME_DEV --ip ${{ secrets.DEVELOPMENT_DOCKER_LOCAL_IP }} -t $DOCKER_PROJECT_NAME_DEV
+
+      # PRODUCTION
+      - name: Copy repository contents via scp PRODUCTION
+        if: ${{ steps.extract_branch.outputs.branch == 'PRODUCTION' }}
+        uses: appleboy/scp-action@master
+        with:
+          HOST: ${{ secrets.PRODUCTION_HOST }}
+          USERNAME: ${{ secrets.PRODUCTION_USERNAME }}
+          PORT: ${{ secrets.PRODUCTION_PORT }}
+          KEY: ${{ secrets.PRODUCTION_SSHKEY }}
+          source: "."
+          target: "/home/debian/toptenpro-back-prod"
+
+      - name: Build and start docker container PRODUCTION
+        if: ${{ steps.extract_branch.outputs.branch == 'PRODUCTION' }}
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          USERNAME: ${{ secrets.PRODUCTION_USERNAME }}
+          PORT: ${{ secrets.PRODUCTION_PORT }}
+          KEY: ${{ secrets.PRODUCTION_SSHKEY }}
+          script: |
+            docker ps -q --filter "name=toptenpro-back-prod" | grep -q . && docker stop toptenpro-back-prod && docker container rm toptenpro-back-prod
+            docker build -t toptenpro-back-prod /home/debian/toptenpro-back-prod/
+            docker run -d --network reverse-proxy --name toptenpro-back-prod --ip 172.18.0.8 -t toptenpro-back-prod

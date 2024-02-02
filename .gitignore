@@ -1,7 +1,7 @@
 node_modules
 *.log
 public/*
-storage/*
+storage/logs
 *.xml
 www
 .env

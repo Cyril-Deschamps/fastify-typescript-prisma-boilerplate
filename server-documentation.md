@@ -6,7 +6,7 @@
 - Création d'un network docker "reverse-proxy"
 - Création d'un docker Nginx et MariaDB
 - Création d'une configuration nginx pour le reverse-proxy et le lien avec la BDD
-- Création d'une configuration nginx pour le projet toptenpro (HTTP et HTTPS)
+- Création d'une configuration nginx pour le projet (HTTP et HTTPS)
 - Auto génération des certificats pour SSL avec Letsencrypt et Certbot
 - Création d'un script github action pour le déploiement continu sur le repo github du projet
 - Configuration des secrets en fonction du serveur de déploiement [(voir README.md)](./README.md)
@@ -31,7 +31,7 @@ Les secrets Github sont utilisés pour la connexion SSH au serveur, et peuvent d
   - Importer le projet
 
     ```bash
-    git clone https://github.com/Cyril-Deschamps/toptenpro-front.git
+    git clone https://github.com/CyrilDesch/fastify-typescript-prisma-boilerplate.git
     git checkout development
 
     # La seconde commande permet de se placer
@@ -46,8 +46,8 @@ Les secrets Github sont utilisés pour la connexion SSH au serveur, et peuvent d
     ```
   - Déployer les modifications
     - Se rendre à l’adresse :
-      - FRONT : https://github.com/Cyril-Deschamps/toptenpro-front/compare/production...development?expand=1
-      - BACK : https://github.com/Cyril-Deschamps/toptenpro-back/compare/production...development?expand=1
+      - FRONT : https://github.com/CyrilDesch/fastify-typescript-prisma-boilerplate.git/compare/production...development?expand=1
+      - BACK : https://github.com/CyrilDesch/fastify-typescript-prisma-boilerplate.git/compare/production...development?expand=1
     - Créer la pull request
     - A ce stade là, vous pouvez vérifier vos modifications; que vous n’envoyer pas d’erreur qui pourrait causer un crash.
     - Si tout est bon, merger la pull request.

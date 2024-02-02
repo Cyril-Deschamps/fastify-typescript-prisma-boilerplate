@@ -1,7 +1,7 @@
 {
-  "name": "REPLACE-PROJECT-NAME",
+  "name": "fastify",
   "version": "0.0.1",
-  "description": "REPLACE-PROJECT-NAME Node TS BackEnd - Rest API",
+  "description": "fastify Node TS BackEnd - Rest API",
   "private": true,
   "dependencies": {
     "@fastify/compress": "^7.0.0",

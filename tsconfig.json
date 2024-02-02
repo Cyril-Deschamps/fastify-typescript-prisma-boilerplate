@@ -12,7 +12,7 @@
     "strict": true,
     "outDir": "./dist"
   },
-  "include": ["src/**/*.ts", "src/types/fastify.d.ts", ".prettierrc.js"],
+  "include": ["src/**/*.ts", "src/types/fastify.d.ts"],
   "exclude": ["node_modules"],
   "ts-node": {
     "files": true

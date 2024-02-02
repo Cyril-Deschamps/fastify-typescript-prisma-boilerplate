@@ -2,7 +2,7 @@ import { config as dotenvConfig } from "dotenv";
 import { join } from "path";
 dotenvConfig();
 
-export const project_name = "REPLACE-PROJECT-NAME";
+export const project_name = "fastify";
 
 //secret used to encrypt pwd
 export const secret = process.env.APP_SECRET!;

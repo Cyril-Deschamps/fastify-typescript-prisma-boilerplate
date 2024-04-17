@@ -3,7 +3,7 @@ name: Linter and Deploy
 on:
   push:
     branches:
-      - development
+      # - development
       - production
 
 env:

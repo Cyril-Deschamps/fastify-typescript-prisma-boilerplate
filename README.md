@@ -94,8 +94,8 @@ Secrets are stored in github secrets. For a local environment, you can use the `
 
 | Variable                              | Description                                                  | Example                                                  |
 | ------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------- |
-| `DEVELOPMENT_APP_BACKEND_PUBLIC_URL`  | HTTP API address                                             | `https://fastify.cyrildeschamps.fr`                      |
-| `DEVELOPMENT_APP_FRONTEND_PUBLIC_URL` | Web application address                                      | `https://fastify.cyrildeschamps.fr`                      |
+| `DEVELOPMENT_APP_BACKEND_PUBLIC_URL`  | HTTP API address                                             | `https://boilerplate.cyrildeschamps.fr`                  |
+| `DEVELOPMENT_APP_FRONTEND_PUBLIC_URL` | Web application address                                      | `https://boilerplate.cyrildeschamps.fr`                  |
 | `DEVELOPMENT_APP_DATABASE_URL`        | Database URL                                                 | `mysql://user:password@hostname:ip/dbname?schema=public` |
 | `DEVELOPMENT_HOST`                    | Deployment server IP                                         | `66.254.114.41`                                          |
 | `DEVELOPMENT_PORT`                    | Deployment server SSH port                                   | `22`                                                     |

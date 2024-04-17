@@ -1,11 +1,9 @@
 name: Linter for active development branches
 
 on:
-  push:
-    branches:
+  pull_request:
+    paths:
       - "**"
-      - "!development"
-      - "!production"
 
 jobs:
   # Test with eslint and prettier

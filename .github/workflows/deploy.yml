@@ -7,10 +7,10 @@ on:
       - production
 
 env:
-  DOCKER_PROJECT_NAME_DEV: dev-fastify
-  PROJECT_PATH_DEV: ${{ secrets.DEVELOPMENT_DOCKER_IMAGES_PATH }}/dev-fastify
-  DOCKER_PROJECT_NAME_PROD: fastify
-  PROJECT_PATH_PROD: ${{ secrets.PRODUCTION_DOCKER_IMAGES_PATH }}/fastify
+  DOCKER_PROJECT_NAME_DEV: dev-todochangeprojectnamebackend
+  PROJECT_PATH_DEV: ${{ secrets.DEVELOPMENT_DOCKER_IMAGES_PATH }}/dev-todochangeprojectnamebackend
+  DOCKER_PROJECT_NAME_PROD: todochangeprojectnamebackend
+  PROJECT_PATH_PROD: ${{ secrets.PRODUCTION_DOCKER_IMAGES_PATH }}/todochangeprojectnamebackend
 
 jobs:
   # Test with eslint and prettier
@@ -91,7 +91,7 @@ jobs:
           script: |
             docker ps -q --filter "name=$DOCKER_PROJECT_NAME_DEV" | grep -q . && docker stop $DOCKER_PROJECT_NAME_DEV && docker container rm $DOCKER_PROJECT_NAME_DEV
             docker build -t $DOCKER_PROJECT_NAME_DEV $PROJECT_PATH_DEV
-            docker run -d --network reverse-proxy --name $DOCKER_PROJECT_NAME_DEV --ip ${{ secrets.DEVELOPMENT_DOCKER_LOCAL_IP }} -t $DOCKER_PROJECT_NAME_DEV
+            docker run -d --network reverse-proxy --restart unless-stopped --name $DOCKER_PROJECT_NAME_DEV --ip ${{ secrets.DEVELOPMENT_DOCKER_LOCAL_IP }} -t $DOCKER_PROJECT_NAME_DEV
 
       # PRODUCTION
       - name: Copy repository contents via scp PRODUCTION
@@ -117,4 +117,4 @@ jobs:
           script: |
             docker ps -q --filter "name=$DOCKER_PROJECT_NAME_PROD" | grep -q . && docker stop $DOCKER_PROJECT_NAME_PROD && docker container rm $DOCKER_PROJECT_NAME_PROD
             docker build -t $DOCKER_PROJECT_NAME_PROD $PROJECT_PATH_PROD
-            docker run -d --network reverse-proxy --name $DOCKER_PROJECT_NAME_PROD --ip ${{ secrets.PRODUCTION_DOCKER_LOCAL_IP }} -t $DOCKER_PROJECT_NAME_PROD
+            docker run -d --network reverse-proxy --restart unless-stopped --name $DOCKER_PROJECT_NAME_PROD --ip ${{ secrets.PRODUCTION_DOCKER_LOCAL_IP }} -t $DOCKER_PROJECT_NAME_PROD
